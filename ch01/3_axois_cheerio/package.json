@@ -1,0 +1,15 @@
+{
+  "name": "ch03_axois_cheerio",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "8c6t",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.3",
+    "xlsx": "^0.14.3"
+  }
+}
