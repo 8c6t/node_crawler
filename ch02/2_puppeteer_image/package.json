@@ -1,0 +1,12 @@
+{
+  "name": "ch03_pupepteer_image",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "8c6t",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "puppeteer": "^1.16.0",
+    "xlsx": "^0.14.3"
+  }
+}
