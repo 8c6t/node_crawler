@@ -17,17 +17,21 @@ const crawler = async () => {
     await page.goto('https://unsplash.com');
     let result = [];
 
+    // 선택자
+    const IMG_EL_SELECTOR = 'figure';
+    const IMG_SRC_SELECTOR = 'img._2zEKz';
+
     while(result.length <= 30) {
-      const srcs = await page.evaluate(() => {
+      const srcs = await page.evaluate((IMG_EL_SELECTOR, IMG_SRC_SELECTOR) => {
         // 절대 좌표로 스크롤을 조작
         window.scrollTo(0, 0);
         let imgs = [];
       
-        const imgEls = document.querySelectorAll('.IEpfq');
+        const imgEls = document.querySelectorAll(IMG_EL_SELECTOR.toString());
   
         if(imgEls.length) {
           imgEls.forEach(v => {
-            let src = v.querySelector('img._2zEKz').src;
+            let src = v.querySelector(IMG_SRC_SELECTOR.toString()).src;
             if(src)  imgs.push(src);
             v.parentElement.removeChild(v);
           });
@@ -40,12 +44,12 @@ const crawler = async () => {
         }, 500);
 
         return imgs;  
-      });
+      }, IMG_EL_SELECTOR, IMG_SRC_SELECTOR);
 
       result = result.concat(srcs);
       // 선택자 등장 대기
       // 30초간 기다린 뒤 못 찾으면 timeout 에러
-      await page.waitForSelector('.IEpfq');  
+      await page.waitForSelector(IMG_EL_SELECTOR.toString());  
       console.log('새 이미지 로딩 완료');
     }
 
@@ -55,7 +59,7 @@ const crawler = async () => {
       const imgResult = await axios.get(src.replace(/\?.*$/, ''), {
         responseType: 'arraybuffer'
       });
-      
+
       fs.writeFileSync(`imgs/${new Date().valueOf()}.jpeg`, imgResult.data);
     });
 
