@@ -1,0 +1,13 @@
+{
+  "name": "csv-parser",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "8c6t",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index"
+  },
+  "dependencies": {
+    "csv-parse": "^4.4.1"
+  }
+}
