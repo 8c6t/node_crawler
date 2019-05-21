@@ -44,6 +44,9 @@ const crawler = async () => {
     await page.evaluate(() => {
       document.querySelector('li.navSubmenu:last-child').click();
     });
+    
+    await page.close();
+    await browser.close();
 
   } catch (error) {
     console.error(error);
