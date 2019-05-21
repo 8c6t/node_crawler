@@ -16,14 +16,26 @@ const crawler = async () => {
     });
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36');
     await page.goto('https://www.facebook.com/');
-    
-    // evalueate 내부는 자바스크립트 스코프를 따르지 않기 때문에
-    // 변수를 인자로 넘겨야 한다
-    await page.evaluate((id, pw) => {
-      document.querySelector('#email').value = id;
-      document.querySelector('#pass').value = pw;
-      document.querySelector('#loginbutton').click();
-    }, process.env.fb_id, process.env.fb_pw);
+
+    await page.type('#email', process.env.fb_id);
+    await page.type('#pass', process.env.fb_pw);
+    await page.hover('#loginbutton');
+    await page.waitFor(3000);
+    await page.click('#loginbutton');
+
+    await page.waitFor(10000);
+
+    // https://github.com/GoogleChrome/puppeteer/blob/master/lib/USKeyboardLayout.js
+    await page.keyboard.press('Escape');
+
+    await page.click('#userNavigationLabel');
+    await page.waitForSelector('li.navSubmenu:last-child');
+    await page.waitFor(3000);
+
+    // await page.click('li.navSubmenu:last-child');
+    await page.evaluate(() => {
+      document.querySelector('li.navSubmenu:last-child').click();
+    })
 
   } catch (error) {
     console.error(error);
