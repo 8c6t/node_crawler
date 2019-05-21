@@ -6,7 +6,7 @@ const crawler = async () => {
   try {
     const browser = await puppeteer.launch({
       headless: process.env.NODE_ENV === 'production',
-      args: ['--window-size=1920,1080']
+      args: ['--window-size=1920,1080', '--disable-notifications']
     });
 
     const page = await browser.newPage();
@@ -23,7 +23,15 @@ const crawler = async () => {
     await page.waitFor(3000);
     await page.click('#loginbutton');
 
-    await page.waitFor(10000);
+/*
+    // 특정 요청 대기
+    await page.waitForResponse((response) => {
+      console.log(response.url());
+      return response.url().includes('login_attempt');
+    });
+*/
+    // login_attempt가 포함된 url이 response에 없어 선택자로 대처
+    await page.waitForSelector('#userNavigationLabel')
 
     // https://github.com/GoogleChrome/puppeteer/blob/master/lib/USKeyboardLayout.js
     await page.keyboard.press('Escape');
@@ -35,7 +43,7 @@ const crawler = async () => {
     // await page.click('li.navSubmenu:last-child');
     await page.evaluate(() => {
       document.querySelector('li.navSubmenu:last-child').click();
-    })
+    });
 
   } catch (error) {
     console.error(error);
