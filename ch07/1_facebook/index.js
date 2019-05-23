@@ -40,7 +40,7 @@ const crawler = async () => {
     await page.keyboard.press('Escape');
 
     let result = [];
-    while(result.length < 2) {
+    while(result.length < 10) {
       await page.waitForSelector('[id^=hyperfeed_story_id]:first-child .userContentWrapper');
 
       // '[id^=hyperfeed_story_id]:not([class*="sponsored_ad"])'
@@ -50,7 +50,7 @@ const crawler = async () => {
         const name = firstFeed.querySelector('.fwb.fcg') && firstFeed.querySelector('.fwb.fcg').textContent;
         const content = firstFeed.querySelector('.userContent') && firstFeed.querySelector('.userContent').textContent;
         const img = firstFeed.querySelector('[class=mtm]') && document.querySelector('[class=mtm] img').src;
-        const postId = firstFeed.id.split('_').slice(-1)[0];
+        const postId = firstFeed.dataset.dedupekey;
 
         return { name, content, postId, img }
       });
@@ -98,6 +98,7 @@ const crawler = async () => {
     console.log(result.length);
     await page.close();
     await browser.close();
+    
   } catch (error) {
     console.error(error);
   }
