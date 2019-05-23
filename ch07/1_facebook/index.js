@@ -40,11 +40,12 @@ const crawler = async () => {
     await page.keyboard.press('Escape');
 
     let result = [];
-    while(result.length < 10) {
+    while(result.length < 2) {
       await page.waitForSelector('[id^=hyperfeed_story_id]:first-child .userContentWrapper');
 
       // '[id^=hyperfeed_story_id]:not([class*="sponsored_ad"])'
       const newPost = await page.evaluate(() => {
+        window.scrollTo(0, 0);
         const firstFeed = document.querySelector('[id^=hyperfeed_story_id]:first-child');
         const name = firstFeed.querySelector('.fwb.fcg') && firstFeed.querySelector('.fwb.fcg').textContent;
         const content = firstFeed.querySelector('.userContent') && firstFeed.querySelector('.userContent').textContent;
@@ -54,12 +55,17 @@ const crawler = async () => {
         return { name, content, postId, img }
       });
 
-      console.log(newPost);
-      result.push(newPost);
+      const exist = await db.Facebook.findOne({
+        where: { postId: newPost.postId }
+      });
 
+      if(!exist && newPost.name) {
+        result.push(newPost);
+      }
+      
       await page.waitFor(1000);
       const likeBtn = await page.$('[id^=hyperfeed_story_id]:first-child ._666k a');
-
+      
       await page.evaluate((like) => {
         const sponsor = document.querySelector('[id^=hyperfeed_story_id]:first-child[class*="sponsored_ad"]');
         if(!sponsor && like.getAttribute('aria-pressed') === 'false') {
@@ -68,17 +74,30 @@ const crawler = async () => {
           like.click();
         }
       }, likeBtn);
-
+      
       await page.waitFor(1000);
-
+     
       await page.evaluate(() => {
         const firstFeed = document.querySelector('[id^=hyperfeed_story_id]:first-child');
         firstFeed.parentNode.removeChild(firstFeed);
+        window.scrollBy(0, 200);
       });
       
-    await page.waitFor(1000);
+      await page.waitFor(1000);
     }
-
+    
+    await Promise.all(result.map((r) => {
+      return db.Facebook.create({
+        postId: r.postId,
+        media: r.img,
+        writer: r.name,
+        content: r.content,
+      });
+    }));
+    
+    console.log(result.length);
+    await page.close();
+    await browser.close();
   } catch (error) {
     console.error(error);
   }

@@ -5,6 +5,9 @@ const db = {};
 
 const sequelize = new Sequelize(config.database, config.username, config.password, config);
 
+db.Proxy = require('./proxy')(sequelize, Sequelize);
+db.Facebook = require('./facebook')(sequelize, Sequelize);
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
