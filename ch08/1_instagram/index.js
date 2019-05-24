@@ -80,8 +80,8 @@ const crawler = async () => {
       }
   
       const newPost = await page.evaluate(() => {
-        const article = document.querySelector('article:first-child');
-        const postId = document.querySelector('.c-Yi7') && document.querySelector('.c-Yi7').href;
+        const article = document.querySelector('article:first-of-type');
+        const postId = document.querySelector('.c-Yi7') && document.querySelector('.c-Yi7').href.split('/').slice(-2, -1)[0];
         const name = article.querySelector('h2') && article.querySelector('h2').textContent;
         const img = article.querySelector('.KL4Bh img') && article.querySelector('.KL4Bh img').src;
         const content = article.querySelector('.C4VMK > span') && article.querySelector('.C4VMK > span').textContent;
@@ -91,17 +91,42 @@ const crawler = async () => {
   
       if(newPost.postId !== prevPostId) {
         console.log(newPost);
-        if(!result.find((v) => v.postId !== newPost.postId)) {
-          result.push(newPost);
+        if(!result.find((v) => v.postId === newPost.postId)) {
+          const exist = db.Instagram.findOne({ where: { postId: newPost.postId }});
+          if(!exist) {
+            result.push(newPost);
+          }
         }
-        prevPostId = newPost.postId;
       }
+      
+      await page.waitFor(1000);
+      await page.evaluate(() => {
+        const article = document.querySelector('article:first-of-type');
+        const heartBtn = article.querySelector('span[class^="glyphsSpriteHeart"]');
+        if(heartBtn.className.includes('outline')) {
+          heartBtn.click();
+        }
+      });
 
+      prevPostId = newPost.postId;
       await page.waitFor(1000);
       await page.evaluate(() => {
         window.scrollBy(0, 800);
       });
     }
+
+    await Promise.all(result.map((r) => {
+      return db.Instagram.create({
+        postId: r.postId,
+        media: r.img,
+        writer: r.name,
+        content: r.content,
+      });
+    }));
+
+    console.log(result.length);
+    await page.close();
+    await browser.close();
 
   } catch (error) {
     console.error(error);
