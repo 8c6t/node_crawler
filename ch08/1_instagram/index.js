@@ -52,8 +52,8 @@ const crawler = async () => {
       // await page.waitForNavigation();
   
       await Promise.all([
-        page.waitForNavigation(),
-        page.click('button.L3NKy')
+        page.waitForNavigation({ waitUntil: "networkidle0" }),
+        page.click('button.L3NKy'),
       ]);
   
       await page.waitForSelector('#m_login_email');
@@ -64,7 +64,7 @@ const crawler = async () => {
       await page.waitForSelector('button[name=login]');
   
       await Promise.all([
-        page.waitForNavigation(),
+        page.waitForNavigation({ waitUntil: "networkidle0" }),
         page.click('button[name=login]'),
       ]);
 
@@ -73,6 +73,7 @@ const crawler = async () => {
     
     let result = [];
     let prevPostId = '';
+    
     while(result.length < 10) {
       const moreButton = await page.$('button.sXUSN');
       if(moreButton) {
@@ -92,7 +93,7 @@ const crawler = async () => {
       if(newPost.postId !== prevPostId) {
         console.log(newPost);
         if(!result.find((v) => v.postId === newPost.postId)) {
-          const exist = db.Instagram.findOne({ where: { postId: newPost.postId }});
+          const exist = await db.Instagram.findOne({ where: { postId: newPost.postId }});
           if(!exist) {
             result.push(newPost);
           }
