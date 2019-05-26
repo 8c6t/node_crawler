@@ -86,8 +86,18 @@ const crawler = async () => {
         const name = article.querySelector('h2') && article.querySelector('h2').textContent;
         const img = article.querySelector('.KL4Bh img') && article.querySelector('.KL4Bh img').src;
         const content = article.querySelector('.C4VMK > span') && article.querySelector('.C4VMK > span').textContent;
-  
-        return { postId, name, img, content }
+        const commetTags = article.querySelectorAll('li.gElp9:not(:first-of-type)')
+
+        let comments = [];
+
+        commetTags.forEach((c) => {
+          const name = c.querySelector('.C4VMK h3') && c.querySelector('.C4VMK h3').textContent;
+          const comment = c.querySelector('.C4VMK > span') && c.querySelector('.C4VMK > span').textContent;
+
+          comments.push({ name, comment });
+        });
+
+        return { postId, name, img, content, comments }
       });
   
       if(newPost.postId !== prevPostId) {
@@ -100,14 +110,14 @@ const crawler = async () => {
         }
       }
       
-      await page.waitFor(1000);
+/*       await page.waitFor(1000);
       await page.evaluate(() => {
         const article = document.querySelector('article:first-of-type');
         const heartBtn = article.querySelector('span[class^="glyphsSpriteHeart"]');
         if(heartBtn.className.includes('outline')) {
           heartBtn.click();
         }
-      });
+      }); */
 
       prevPostId = newPost.postId;
       await page.waitFor(1000);
