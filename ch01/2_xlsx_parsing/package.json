@@ -7,6 +7,6 @@
     "start": "node index"
   },
   "dependencies": {
-    "xlsx": "^0.14.3"
+    "xlsx": "^0.17.0"
   }
 }
